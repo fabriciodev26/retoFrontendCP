@@ -1,5 +1,5 @@
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase.client";
 import type { CartItem, User, PayUResponse } from "@/types";
 
 interface OrderPayload {
