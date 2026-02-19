@@ -77,13 +77,14 @@ function OrderCard({ order }: { order: Order }) {
 export default function Orders() {
   const { user, hydrated } = useAuthStore();
 
+  const { data: orders, isLoading, isError } = useQuery({
+    queryKey: ["orders", user?.email ?? ""],
+    queryFn: () => getOrders(user!.email),
+    enabled: hydrated && !!user,
+  });
+
   if (!hydrated) return null;
   if (!user) return <Navigate to="/login" replace />;
-
-  const { data: orders, isLoading, isError } = useQuery({
-    queryKey: ["orders", user.email],
-    queryFn: () => getOrders(user.email),
-  });
 
   return (
     <main className="container mx-auto px-4 py-6 md:py-10">

@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink } from "react-router";
 import { useAuthStore } from "@/store/authStore";
 
 export function Navbar() {
   const { user, logout } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     const { auth } = await import("@/lib/firebase.client");

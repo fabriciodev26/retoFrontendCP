@@ -1,10 +1,13 @@
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
 import { useNavigate, Navigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { processPayment } from "@/services/payU";
 import { completeTransaction } from "@/services/complete";
+import { saveOrder } from "@/services/orders";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { usePaymentStore } from "@/store/paymentStore";
@@ -101,15 +104,16 @@ export default function Checkout() {
   if (!user) return <Navigate to="/login" replace />;
   if (items.length === 0) return <Navigate to="/dulceria" replace />;
   const { setPayUResponse } = usePaymentStore();
+  const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
       email: user?.email ?? "",
       fullName: user?.name ?? "",
@@ -154,14 +158,6 @@ export default function Checkout() {
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    const result = schema.safeParse(data);
-    if (!result.success) {
-      result.error.issues.forEach(({ path, message }) => {
-        if (path[0]) setError(path[0] as keyof FormValues, { message });
-      });
-      return;
-    }
-
     try {
       const payUResponse = await processPayment({
         cardNumber: data.cardNumber.replace(/\s/g, ""),
@@ -181,6 +177,10 @@ export default function Checkout() {
         operationDate: payUResponse.operationDate,
         transactionId: payUResponse.transactionId,
       });
+
+      saveOrder({ user, items, total, payUResponse })
+        .then(() => queryClient.invalidateQueries({ queryKey: ["orders"] }))
+        .catch(() => {});
 
       setPayUResponse(payUResponse);
       clearCart();

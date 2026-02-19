@@ -8,4 +8,5 @@ export default [
   route("confirmacion", "routes/confirmation.tsx"),
   route("mis-pedidos", "routes/orders.tsx"),
   route("api/complete", "routes/api.complete.ts"),
+  route("api/payment", "routes/api.payment.ts"),
 ] satisfies RouteConfig;
