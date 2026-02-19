@@ -1,13 +1,16 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Cineplanet — Estrenos" },
+    { name: "description", content: "Descubre los últimos estrenos de Cineplanet" },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  return (
+    <main className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-cp-red">Estrenos</h1>
+    </main>
+  );
 }

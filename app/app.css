@@ -3,13 +3,17 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Paleta Cineplanet */
+  --color-cp-red: #E30613;
+  --color-cp-red-dark: #B8050F;
+  --color-cp-dark: #0f0f0f;
+  --color-cp-gray: #1a1a1a;
+  --color-cp-gray-light: #2a2a2a;
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-cp-dark text-white;
+  font-family: var(--font-sans);
 }
