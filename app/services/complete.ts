@@ -1,7 +1,7 @@
 interface CompletePayload {
   email: string;
   nombres: string;
-  numeroDni: string;
+  documentNumber: string;
   operationDate: string;
   transactionId: string;
 }

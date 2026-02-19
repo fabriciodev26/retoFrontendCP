@@ -17,7 +17,7 @@ const firebaseReady = Boolean(import.meta.env.VITE_FIREBASE_API_KEY);
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
+  const { user } = useAuthStore();
   const [pendingUser, setPendingUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,19 +41,18 @@ export default function Login() {
   };
 
   const handleAccept = () => {
-    if (pendingUser) setUser(pendingUser);
     navigate("/dulceria");
   };
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 md:mb-8">
           <h1 className="text-2xl font-bold">Bienvenido</h1>
           <p className="text-gray-400 text-sm mt-1">Inicia sesión para continuar</p>
         </div>
 
-        <div className="bg-cp-gray rounded-2xl p-6 flex flex-col gap-4">
+        <div className="bg-cp-gray rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
           {error && (
             <p className="text-sm text-center text-cp-red">{error}</p>
           )}

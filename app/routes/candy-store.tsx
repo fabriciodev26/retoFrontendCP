@@ -38,25 +38,25 @@ function ProductCard({ product }: { product: CandyProduct }) {
       }`}
     >
       <div>
-        <h3 className="font-semibold">{product.nombre}</h3>
-        <p className="text-gray-400 text-sm mt-1 leading-relaxed">{product.descripcion}</p>
+        <h3 className="font-semibold text-sm sm:text-base">{product.nombre}</h3>
+        <p className="text-gray-400 text-xs sm:text-sm mt-1 leading-relaxed">{product.descripcion}</p>
       </div>
 
       <div className="flex items-center justify-between mt-auto">
-        <span className="font-bold">{formatCurrency(product.precio)}</span>
+        <span className="font-bold text-sm sm:text-base">{formatCurrency(product.precio)}</span>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => removeItem(product.id)}
             disabled={cantidad === 0}
-            className="w-8 h-8 rounded-lg bg-cp-gray-light text-white font-bold hover:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-lg bg-cp-gray-light text-white font-bold hover:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-lg"
           >
             −
           </button>
           <span className="w-6 text-center text-sm font-semibold">{cantidad}</span>
           <button
             onClick={() => addItem(product)}
-            className="w-8 h-8 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white font-bold transition-colors"
+            className="w-9 h-9 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white font-bold transition-colors text-lg"
           >
             +
           </button>
@@ -71,18 +71,24 @@ export default function CandyStore() {
   const { items, total } = useCartStore();
   const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, isError } = useQuery({
     queryKey: ["candystore"],
     queryFn: getCandyStore,
   });
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-32">
-      <h1 className="text-3xl font-bold mb-6">
+    <div className="container mx-auto px-4 py-6 md:py-8 pb-28">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-5 md:mb-6">
         <span className="text-cp-red">Dulcería</span>
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {isError && (
+        <div className="rounded-xl bg-cp-gray border border-white/10 px-6 py-10 text-center">
+          <p className="text-gray-400 text-sm">No se pudieron cargar los productos. Intenta de nuevo.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           : products?.map((product) => (
@@ -91,20 +97,20 @@ export default function CandyStore() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-cp-gray/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-400">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs text-gray-400 truncate">
               {totalItems > 0
                 ? `${totalItems} ${totalItems === 1 ? "producto" : "productos"}`
                 : "Sin productos"}
             </span>
-            <span className="text-xl font-bold">{formatCurrency(total)}</span>
+            <span className="text-lg sm:text-xl font-bold">{formatCurrency(total)}</span>
           </div>
 
           <button
             onClick={() => navigate("/pago")}
             disabled={items.length === 0}
-            className="px-8 py-3 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="shrink-0 px-6 sm:px-8 py-3 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Continuar
           </button>

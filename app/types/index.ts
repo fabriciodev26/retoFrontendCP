@@ -1,12 +1,12 @@
 export interface Premiere {
-  id: number;
+  id: string;
   titulo: string;
   imagen: string;
   descripcion: string;
 }
 
 export interface CandyProduct {
-  id: number;
+  id: string;
   nombre: string;
   descripcion: string;
   precio: number;
@@ -27,3 +27,12 @@ export interface PayUResponse {
 }
 
 export type DocumentType = "DNI" | "CE" | "Pasaporte";
+
+export interface Order {
+  id: string;
+  user: User;
+  items: CartItem[];
+  total: number;
+  payUResponse: PayUResponse;
+  createdAt: string;
+}

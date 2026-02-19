@@ -28,20 +28,20 @@ export default function Confirmation() {
   if (!payUResponse) return null;
 
   return (
-    <main className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md flex flex-col items-center gap-6 text-center">
-        <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center">
+    <main className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-8 md:py-10">
+      <div className="w-full max-w-md flex flex-col items-center gap-5 md:gap-6 text-center">
+        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-500/10 flex items-center justify-center">
           <CheckIcon />
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold">¡Compra exitosa!</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">¡Compra exitosa!</h1>
           <p className="text-gray-400 mt-2">
             Tu pedido fue procesado correctamente.
           </p>
         </div>
 
-        <div className="w-full bg-cp-gray rounded-2xl p-6 flex flex-col gap-4 text-left">
+        <div className="w-full bg-cp-gray rounded-2xl p-4 sm:p-6 flex flex-col gap-4 text-left">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 uppercase tracking-wide">
               N.º de transacción

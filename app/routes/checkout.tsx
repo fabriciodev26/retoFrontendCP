@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useNavigate, Navigate } from "react-router";
 import { toast } from "sonner";
 import { processPayment } from "@/services/payU";
 import { completeTransaction } from "@/services/complete";
@@ -43,21 +44,21 @@ const schema = z
     if (data.documentType === "DNI" && !/^\d{8}$/.test(n)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "DNI debe tener 8 dígitos",
+        message: "DNI debe tener exactamente 8 dígitos",
         path: ["documentNumber"],
       });
     }
-    if (data.documentType === "CE" && (n.length < 9 || n.length > 12)) {
+    if (data.documentType === "CE" && !/^[A-Z0-9]{9,12}$/i.test(n)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "CE debe tener entre 9 y 12 caracteres",
+        message: "CE debe tener entre 9 y 12 caracteres alfanuméricos",
         path: ["documentNumber"],
       });
     }
-    if (data.documentType === "Pasaporte" && (n.length < 7 || n.length > 12)) {
+    if (data.documentType === "Pasaporte" && !/^[A-Z]{1,2}\d{6,8}$/i.test(n)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Pasaporte debe tener entre 7 y 12 caracteres",
+        message: "Pasaporte inválido (ej: C12345678)",
         path: ["documentNumber"],
       });
     }
@@ -93,8 +94,12 @@ function Field({
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, hydrated } = useAuthStore();
   const { items, total, clearCart } = useCartStore();
+
+  if (!hydrated) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (items.length === 0) return <Navigate to="/dulceria" replace />;
   const { setPayUResponse } = usePaymentStore();
 
   const {
@@ -113,6 +118,28 @@ export default function Checkout() {
   });
 
   const documentType = watch("documentType");
+
+  const docConfig: Record<string, { maxLength: number; inputMode: "numeric" | "text" }> = {
+    DNI: { maxLength: 8, inputMode: "numeric" },
+    CE: { maxLength: 12, inputMode: "text" },
+    Pasaporte: { maxLength: 9, inputMode: "text" },
+  };
+
+  useEffect(() => {
+    setValue("documentNumber", "");
+  }, [documentType]);
+
+  const handleDocNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (documentType === "DNI") {
+      value = value.replace(/\D/g, "").slice(0, 8);
+    } else if (documentType === "CE") {
+      value = value.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 12);
+    } else if (documentType === "Pasaporte") {
+      value = value.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 9);
+    }
+    setValue("documentNumber", value, { shouldValidate: false });
+  };
 
   const handleCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, "").slice(0, 16);
@@ -143,12 +170,14 @@ export default function Checkout() {
         email: data.email,
         fullName: data.fullName,
         amount: total,
+        documentNumber: data.documentNumber,
+        documentType: data.documentType,
       });
 
       await completeTransaction({
         email: data.email,
         nombres: data.fullName,
-        numeroDni: data.documentNumber,
+        documentNumber: data.documentNumber,
         operationDate: payUResponse.operationDate,
         transactionId: payUResponse.transactionId,
       });
@@ -168,14 +197,14 @@ export default function Checkout() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">
+    <main className="container mx-auto px-4 py-6 md:py-10">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8">
         <span className="text-cp-red">Pago</span>
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <form onSubmit={onSubmit} className="lg:col-span-2 flex flex-col gap-8">
-          <section className="bg-cp-gray rounded-2xl p-6 flex flex-col gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <form onSubmit={onSubmit} className="lg:col-span-2 order-2 lg:order-1 flex flex-col gap-6 md:gap-8">
+          <section className="bg-cp-gray rounded-2xl p-4 sm:p-6 flex flex-col gap-5">
             <h2 className="font-semibold text-sm uppercase tracking-wide text-gray-400">
               Datos de la tarjeta
             </h2>
@@ -190,7 +219,7 @@ export default function Checkout() {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <Field label="Vencimiento" error={errors.cardExpiry?.message}>
                 <input
                   {...register("cardExpiry")}
@@ -213,7 +242,7 @@ export default function Checkout() {
             </div>
           </section>
 
-          <section className="bg-cp-gray rounded-2xl p-6 flex flex-col gap-5">
+          <section className="bg-cp-gray rounded-2xl p-4 sm:p-6 flex flex-col gap-5">
             <h2 className="font-semibold text-sm uppercase tracking-wide text-gray-400">
               Datos personales
             </h2>
@@ -235,7 +264,7 @@ export default function Checkout() {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
               <Field label="Tipo de documento" error={errors.documentType?.message}>
                 <select {...register("documentType")} className={selectClass}>
                   <option value="DNI">DNI</option>
@@ -247,25 +276,19 @@ export default function Checkout() {
               <Field label="Número de documento" error={errors.documentNumber?.message}>
                 <input
                   {...register("documentNumber")}
+                  onChange={handleDocNumber}
                   placeholder={docPlaceholder[documentType] ?? ""}
-                  inputMode="numeric"
+                  inputMode={docConfig[documentType]?.inputMode ?? "text"}
+                  maxLength={docConfig[documentType]?.maxLength}
                   className={inputClass}
                 />
               </Field>
             </div>
           </section>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="lg:hidden w-full py-4 rounded-xl bg-cp-red hover:bg-cp-red-dark text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? "Procesando..." : `Pagar ${formatCurrency(total)}`}
-          </button>
         </form>
 
-        <aside className="flex flex-col gap-4">
-          <div className="bg-cp-gray rounded-2xl p-6 flex flex-col gap-4">
+        <aside className="order-1 lg:order-2 flex flex-col gap-4">
+          <div className="bg-cp-gray rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
             <h2 className="font-semibold text-sm uppercase tracking-wide text-gray-400">
               Resumen
             </h2>
@@ -292,7 +315,7 @@ export default function Checkout() {
             <button
               onClick={onSubmit}
               disabled={isSubmitting || items.length === 0}
-              className="hidden lg:block w-full py-4 rounded-xl bg-cp-red hover:bg-cp-red-dark text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 rounded-xl bg-cp-red hover:bg-cp-red-dark text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Procesando..." : `Pagar ${formatCurrency(total)}`}
             </button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 
 import type { Route } from "./+types/root";
 import { Navbar } from "@/components/Navbar";
+import { useAuthStore } from "@/store/authStore";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -52,6 +53,31 @@ export default function App() {
         defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
       })
   );
+
+  const { setUser, setHydrated } = useAuthStore();
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+
+    (async () => {
+      const { auth } = await import("@/lib/firebase.client");
+      const { onAuthStateChanged } = await import("firebase/auth");
+
+      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+          setUser({
+            name: firebaseUser.displayName ?? "Usuario",
+            email: firebaseUser.email ?? "",
+          });
+        } else {
+          setUser(null);
+        }
+        setHydrated();
+      });
+    })();
+
+    return () => unsubscribe?.();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

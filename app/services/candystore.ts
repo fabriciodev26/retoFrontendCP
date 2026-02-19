@@ -1,6 +1,8 @@
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase.client";
 import type { CandyProduct } from "@/types";
-import data from "@/mocks/candystore.json";
 
 export async function getCandyStore(): Promise<CandyProduct[]> {
-  return data as CandyProduct[];
+  const snapshot = await getDocs(collection(db, "candystore"));
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as CandyProduct));
 }
