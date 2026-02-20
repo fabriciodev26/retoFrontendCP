@@ -2,6 +2,8 @@
 
 ## Acceso rápido
 
+> ⚠️ **Nota:** Dentro de la carpeta **`payu-sandbox-cards`** existen **datos de prueba** para facilitar el testing de pagos. Incluyen ejemplos tanto para **usuarios autenticados** como para **usuarios invitados**. Estos datos son únicamente para entorno de desarrollo/pruebas y **no deben usarse en producción**.
+
 | | |
 |---|---|
 | **Página Publicada** | https://ecommerce-cineplanet-dev.web.app |
