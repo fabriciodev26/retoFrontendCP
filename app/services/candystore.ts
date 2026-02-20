@@ -1,17 +1,25 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, limit, startAfter, type QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase.client";
 import type { CandyProduct } from "@/types";
-import mockData from "@/mocks/candystore.json";
 
-const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
+export const CANDY_PAGE_SIZE = 6;
 
-const MOCK_PRODUCTS: CandyProduct[] = mockData.map((p) => ({ ...p, id: String(p.id) }));
+export interface CandyPage {
+  items: CandyProduct[];
+  nextCursor: QueryDocumentSnapshot | null;
+}
 
-export async function getCandyStore(): Promise<CandyProduct[]> {
-  if (USE_MOCKS) {
-    await new Promise((r) => setTimeout(r, 600));
-    return MOCK_PRODUCTS;
-  }
-  const snapshot = await getDocs(collection(db, "candystore"));
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as CandyProduct));
+export async function getCandyStore(cursor: QueryDocumentSnapshot | null = null): Promise<CandyPage> {
+  const q = cursor
+    ? query(collection(db, "candystore"), limit(CANDY_PAGE_SIZE), startAfter(cursor))
+    : query(collection(db, "candystore"), limit(CANDY_PAGE_SIZE));
+
+  const snapshot = await getDocs(q);
+  const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as CandyProduct));
+  const lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
+
+  return {
+    items,
+    nextCursor: snapshot.docs.length === CANDY_PAGE_SIZE ? lastDoc : null,
+  };
 }

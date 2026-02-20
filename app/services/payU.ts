@@ -33,14 +33,6 @@ function formatExpiry(expiry: string): string {
 }
 
 export async function processPayment(payload: PayUPayload): Promise<PayUResponse> {
-  if (import.meta.env.VITE_USE_MOCKS === "true") {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    return {
-      operationDate: new Date().toISOString(),
-      transactionId: `txn-${Date.now()}`,
-    };
-  }
-
   const apiKey = import.meta.env.VITE_PAYU_API_KEY as string;
   const apiLogin = import.meta.env.VITE_PAYU_API_LOGIN as string;
   const merchantId = import.meta.env.VITE_PAYU_MERCHANT_ID as string;
@@ -123,7 +115,6 @@ export async function processPayment(payload: PayUPayload): Promise<PayUResponse
 
   const text = await response.text();
 
-  // PayU puede responder XML o JSON dependiendo del entorno
   let code: string;
   let state: string;
   let transactionId: string;
@@ -157,14 +148,13 @@ export async function processPayment(payload: PayUPayload): Promise<PayUResponse
   }
 
   if (state !== "APPROVED") {
-    // En sandbox el gateway de Peru puede estar inactivo — simulamos aprobación para pruebas
     if (isTest && errorMsg === "INACTIVE_PAYMENT_PROVIDER") {
       return {
         operationDate: new Date().toISOString(),
         transactionId: `test-${transactionId}`,
       };
     }
-    throw new Error(`Tarjeta declinada. Verifica los datos e intenta de nuevo.`);
+    throw new Error("Tarjeta declinada. Verifica los datos e intenta de nuevo.");
   }
 
   return { operationDate, transactionId };

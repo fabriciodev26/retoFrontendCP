@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate, Navigate } from "react-router";
 import { toast } from "sonner";
-import { getCandyStore } from "@/services/candystore";
+import { getCandyStore, CANDY_PAGE_SIZE, type CandyPage } from "@/services/candystore";
+import type { QueryDocumentSnapshot } from "firebase/firestore";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -78,12 +79,10 @@ export default function CandyStore() {
   const navigate = useNavigate();
   const { user, hydrated } = useAuthStore();
   const { items, total, clearCart } = useCartStore();
-
-  if (!hydrated) return null;
-  if (!user) return <Navigate to="/login?redirect=/dulceria" replace />;
-  const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
   const [search, setSearch] = useState("");
   const [confirmClear, setConfirmClear] = useState(false);
+
+  const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
 
   useEffect(() => {
     if (!confirmClear) return;
@@ -94,18 +93,31 @@ export default function CandyStore() {
     return () => document.removeEventListener("keydown", handleEsc);
   }, [confirmClear]);
 
-  const { data: products, isLoading, isError } = useQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ["candystore"],
-    queryFn: getCandyStore,
+    queryFn: ({ pageParam }) => getCandyStore(pageParam),
+    getNextPageParam: (lastPage: CandyPage) => lastPage.nextCursor ?? undefined,
+    initialPageParam: null as QueryDocumentSnapshot | null,
   });
 
+  const allProducts = data?.pages.flatMap((p) => p.items) ?? [];
+
   const filtered = useMemo(
-    () =>
-      products?.filter((p) =>
-        p.nombre.toLowerCase().includes(search.toLowerCase())
-      ) ?? [],
-    [products, search]
+    () => allProducts.filter((p) =>
+      p.nombre.toLowerCase().includes(search.toLowerCase())
+    ),
+    [allProducts, search]
   );
+
+  if (!hydrated) return null;
+  if (!user) return <Navigate to="/login?redirect=/dulceria" replace />;
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 pb-28">
@@ -138,11 +150,24 @@ export default function CandyStore() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+          ? Array.from({ length: CANDY_PAGE_SIZE }).map((_, i) => <SkeletonCard key={i} />)
           : filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+        {isFetchingNextPage &&
+          Array.from({ length: CANDY_PAGE_SIZE }).map((_, i) => <SkeletonCard key={`next-${i}`} />)}
       </div>
+
+      {hasNextPage && !isFetchingNextPage && !search && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => fetchNextPage()}
+            className="px-8 py-3 rounded-xl border border-white/10 text-gray-300 text-sm font-medium hover:border-white/30 hover:text-white transition-colors"
+          >
+            Ver más productos
+          </button>
+        </div>
+      )}
 
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">

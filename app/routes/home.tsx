@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { getPremieres } from "@/services/premieres";
+import { getPremieres, PREMIERE_PAGE_SIZE, type PremierePage } from "@/services/premieres";
+import type { QueryDocumentSnapshot } from "firebase/firestore";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -26,10 +27,21 @@ function SkeletonCard() {
 }
 
 export default function Home() {
-  const { data: premieres, isLoading, isError } = useQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ["premieres"],
-    queryFn: getPremieres,
+    queryFn: ({ pageParam }) => getPremieres(pageParam),
+    getNextPageParam: (lastPage: PremierePage) => lastPage.nextCursor ?? undefined,
+    initialPageParam: null as QueryDocumentSnapshot | null,
   });
+
+  const premieres = data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
     <main className="container mx-auto px-4 py-6 md:py-10">
@@ -45,8 +57,8 @@ export default function Home() {
 
       <div className="flex flex-col gap-3 sm:gap-4">
         {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-          : premieres?.map((movie) => (
+          ? Array.from({ length: PREMIERE_PAGE_SIZE }).map((_, i) => <SkeletonCard key={i} />)
+          : premieres.map((movie) => (
               <Link
                 key={movie.id}
                 to={`/pelicula/${movie.id}`}
@@ -71,7 +83,21 @@ export default function Home() {
                 </div>
               </Link>
             ))}
+
+        {isFetchingNextPage &&
+          Array.from({ length: PREMIERE_PAGE_SIZE }).map((_, i) => <SkeletonCard key={`next-${i}`} />)}
       </div>
+
+      {hasNextPage && !isFetchingNextPage && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => fetchNextPage()}
+            className="px-8 py-3 rounded-xl border border-white/10 text-gray-300 text-sm font-medium hover:border-white/30 hover:text-white transition-colors"
+          >
+            Ver más estrenos
+          </button>
+        </div>
+      )}
     </main>
   );
 }

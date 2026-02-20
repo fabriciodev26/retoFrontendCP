@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router";
-import { getPremiereById } from "@/services/premieres";
+import { getPremiereById, type PremierePage } from "@/services/premieres";
 import type { Premiere } from "@/types";
 import type { Route } from "./+types/premiere";
 
@@ -60,10 +60,12 @@ export default function Premiere({ loaderData }: Route.ComponentProps) {
   const { data: movie } = useQuery({
     queryKey: ["premiere", id],
     queryFn: () => getPremiereById(id!),
-    initialData: () =>
-      queryClient.getQueryData<Premiere[]>(["premieres"])?.find((p) => p.id === id) ??
-      loaderData.movie ??
-      undefined,
+    initialData: () => {
+      const cached = queryClient.getQueryData<InfiniteData<PremierePage>>(["premieres"]);
+      return cached?.pages.flatMap((p) => p.items).find((p) => p.id === id)
+        ?? loaderData.movie
+        ?? undefined;
+    },
     staleTime: 5 * 60 * 1000,
     enabled: !!id && loaderData.movie !== null,
   });
