@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Navigate } from "react-router";
+import { useNavigate, Navigate } from "react-router";
 import { toast } from "sonner";
 import { getCandyStore, CANDY_PAGE_SIZE, type CandyPage } from "@/services/candystore";
 import type { QueryDocumentSnapshot } from "firebase/firestore";
@@ -76,8 +76,22 @@ function ProductCard({ product }: { product: CandyProduct }) {
 }
 
 export default function CandyStore() {
+  const navigate = useNavigate();
   const { user, hydrated } = useAuthStore();
+  const { items, total, clearCart } = useCartStore();
   const [search, setSearch] = useState("");
+  const [confirmClear, setConfirmClear] = useState(false);
+
+  const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
+
+  useEffect(() => {
+    if (!confirmClear) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setConfirmClear(false);
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [confirmClear]);
 
   const {
     data,
@@ -106,7 +120,7 @@ export default function CandyStore() {
   if (!user) return <Navigate to="/login?redirect=/dulceria" replace />;
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 pb-6">
+    <div className="container mx-auto px-4 py-6 md:py-8 pb-28">
       <h1 className="text-2xl sm:text-3xl font-bold mb-5 md:mb-6">
         <span className="text-cp-red">Dulcería</span>
       </h1>
@@ -155,6 +169,63 @@ export default function CandyStore() {
         </div>
       )}
 
+      {confirmClear && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-sm bg-cp-gray rounded-2xl p-6 flex flex-col gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Limpiar carrito</h2>
+              <p className="text-gray-400 text-sm mt-1">
+                ¿Estás seguro? Se eliminarán todos los productos seleccionados.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmClear(false)}
+                className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 text-sm font-medium hover:border-white/30 hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => { clearCart(); setConfirmClear(false); }}
+                className="flex-1 py-3 rounded-xl bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors"
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-cp-gray/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs text-gray-400 truncate">
+              {totalItems > 0
+                ? `${totalItems} ${totalItems === 1 ? "producto" : "productos"}`
+                : "Sin productos"}
+            </span>
+            <span className="text-lg sm:text-xl font-bold">{formatCurrency(total)}</span>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {totalItems > 0 && (
+              <button
+                onClick={() => setConfirmClear(true)}
+                className="text-sm text-gray-400 hover:text-cp-red transition-colors"
+              >
+                Limpiar
+              </button>
+            )}
+            <button
+              onClick={() => navigate("/pago")}
+              disabled={items.length === 0}
+              className="px-6 sm:px-8 py-3 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
