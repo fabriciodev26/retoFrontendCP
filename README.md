@@ -13,21 +13,49 @@
 
 ---
 
+## Inicio rápido
+
+Para ejecutar el proyecto en local:
+
+1. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
+
+2. **Configurar variables de entorno**
+   - Copia `.env.example` a `.env`
+   - Completa las variables de Firebase (requeridas para auth, Firestore, películas, dulcería y pedidos)
+   - Completa las de PayU solo si quieres probar pagos (ver [Variables de entorno](#variables-de-entorno))
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Levantar el servidor de desarrollo**
+   ```bash
+   npm run dev
+   ```
+
+> Sin Firebase configurado la app no mostrará películas, dulcería ni permitirá iniciar sesión.
+
+---
+
 ## Tabla de contenidos
 
-1. [Descripción general](#descripción-general)
-2. [Servicios externos y librerías](#servicios-externos-y-librerías)
-3. [Arquitectura](#arquitectura)
-4. [Rutas](#rutas)
-5. [Vistas (páginas)](#vistas-páginas)
-6. [Servicios — lógica y contratos HTTP/Firestore](#servicios--lógica-y-contratos-httpfirestore)
-7. [Componentes reutilizables](#componentes-reutilizables)
-8. [Estado global (Stores)](#estado-global-stores)
-9. [Flujo de la aplicación](#flujo-de-la-aplicación)
-10. [Contratos de datos](#contratos-de-datos)
-11. [Variables de entorno](#variables-de-entorno)
-12. [Decisiones de diseño](#decisiones-de-diseño)
-13. [Puntos importantes y consideraciones](#puntos-importantes-y-consideraciones)
+1. [Inicio rápido](#inicio-rápido)
+2. [Descripción general](#descripción-general)
+3. [Servicios externos y librerías](#servicios-externos-y-librerías)
+4. [Arquitectura](#arquitectura)
+5. [Rutas](#rutas)
+6. [Vistas (páginas)](#vistas-páginas)
+7. [Servicios — lógica y contratos HTTP/Firestore](#servicios--lógica-y-contratos-httpfirestore)
+8. [Componentes reutilizables](#componentes-reutilizables)
+9. [Estado global (Stores)](#estado-global-stores)
+10. [Flujo de la aplicación](#flujo-de-la-aplicación)
+11. [Contratos de datos](#contratos-de-datos)
+12. [Variables de entorno](#variables-de-entorno)
+13. [Decisiones de diseño](#decisiones-de-diseño)
+14. [Puntos importantes y consideraciones](#puntos-importantes-y-consideraciones)
 
 ---
 
