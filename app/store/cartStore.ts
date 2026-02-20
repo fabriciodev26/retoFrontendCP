@@ -5,9 +5,11 @@ import type { CartItem, CandyProduct } from "@/types";
 interface CartState {
   items: CartItem[];
   total: number;
+  hydrated: boolean;
   addItem: (product: CandyProduct) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
+  setHydrated: () => void;
 }
 
 const calcTotal = (items: CartItem[]) =>
@@ -18,6 +20,8 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       total: 0,
+      hydrated: false,
+      setHydrated: () => set({ hydrated: true }),
       addItem: (product) =>
         set((state) => {
           const existing = state.items.find((i) => i.id === product.id);
@@ -42,6 +46,11 @@ export const useCartStore = create<CartState>()(
         }),
       clearCart: () => set({ items: [], total: 0 }),
     }),
-    { name: "cineplanet-cart" }
+    {
+      name: "cineplanet-cart",
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
+    }
   )
 );

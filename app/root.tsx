@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
 } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -79,8 +80,14 @@ export default function App() {
     return () => unsubscribe?.();
   }, []);
 
+  const navigation = useNavigation();
+  const isNavigating = navigation.state !== "idle";
+
   return (
     <QueryClientProvider client={queryClient}>
+      {isNavigating && (
+        <div className="fixed top-0 inset-x-0 z-[100] h-[2px] bg-cp-red animate-pulse" />
+      )}
       <Navbar />
       <Outlet />
       <Toaster position="top-right" richColors />
@@ -89,30 +96,36 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
+  const is404 = isRouteErrorResponse(error) && error.status === 404;
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="text-center flex flex-col items-center gap-4 max-w-md">
+        <span className="text-8xl font-bold text-cp-red/20 select-none">
+          {is404 ? "404" : "!"}
+        </span>
+        <div>
+          <h1 className="text-2xl font-bold">
+            {is404 ? "Página no encontrada" : "Algo salió mal"}
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">
+            {is404
+              ? "La URL que ingresaste no existe o fue movida."
+              : "Ocurrió un error inesperado. Por favor intenta de nuevo."}
+          </p>
+          {import.meta.env.DEV && error instanceof Error && (
+            <pre className="mt-4 text-left text-xs text-gray-500 bg-cp-gray rounded-lg p-4 overflow-x-auto max-h-40">
+              {error.message}
+            </pre>
+          )}
+        </div>
+        <a
+          href="/"
+          className="mt-2 px-6 py-3 rounded-xl bg-cp-red hover:bg-cp-red-dark text-white font-medium transition-colors"
+        >
+          Volver al inicio
+        </a>
+      </div>
     </main>
   );
 }

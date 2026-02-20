@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
-import { useNavigate, Navigate } from "react-router";
+import { useNavigate, Navigate, Link } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { processPayment } from "@/services/payU";
@@ -98,11 +98,7 @@ function Field({
 export default function Checkout() {
   const navigate = useNavigate();
   const { user, hydrated } = useAuthStore();
-  const { items, total, clearCart } = useCartStore();
-
-  if (!hydrated) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (items.length === 0) return <Navigate to="/dulceria" replace />;
+  const { items, total, clearCart, hydrated: cartHydrated } = useCartStore();
   const { setPayUResponse } = usePaymentStore();
   const queryClient = useQueryClient();
 
@@ -116,7 +112,7 @@ export default function Checkout() {
     resolver: zodResolver(schema),
     defaultValues: {
       email: user?.email ?? "",
-      fullName: user?.name ?? "",
+      fullName: user?.email ? (user.name ?? "") : "",
       documentType: "DNI",
     },
   });
@@ -132,6 +128,9 @@ export default function Checkout() {
   useEffect(() => {
     setValue("documentNumber", "");
   }, [documentType]);
+
+  if (!hydrated || !cartHydrated) return null;
+  if (items.length === 0) return <Navigate to="/dulceria" replace />;
 
   const handleDocNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -170,23 +169,25 @@ export default function Checkout() {
         documentType: data.documentType,
       });
 
-      await completeTransaction({
+      // completeTransaction es secundario, no bloquea la confirmación si falla
+      completeTransaction({
         email: data.email,
         nombres: data.fullName,
         documentNumber: data.documentNumber,
         operationDate: payUResponse.operationDate,
         transactionId: payUResponse.transactionId,
-      });
+      }).catch(() => {});
 
-      saveOrder({ user, items, total, payUResponse })
+      const orderUser = (user?.email) ? user : { name: data.fullName, email: data.email };
+      saveOrder({ user: orderUser, items, total, payUResponse })
         .then(() => queryClient.invalidateQueries({ queryKey: ["orders"] }))
         .catch(() => {});
 
-      setPayUResponse(payUResponse);
+      setPayUResponse(payUResponse, items, total);
       clearCart();
       navigate("/confirmacion");
-    } catch {
-      toast.error("No se pudo procesar el pago. Intenta de nuevo.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo procesar el pago. Intenta de nuevo.");
     }
   });
 
@@ -198,6 +199,16 @@ export default function Checkout() {
 
   return (
     <main className="container mx-auto px-4 py-6 md:py-10">
+      <Link
+        to="/dulceria"
+        className="inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+        Dulcería
+      </Link>
+
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8">
         <span className="text-cp-red">Pago</span>
       </h1>

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase.client";
 import { useAuthStore } from "@/store/authStore";
-import type { User } from "@/types";
+import { toast } from "sonner";
 import type { Route } from "./+types/login";
 
 export function meta({}: Route.MetaArgs) {
@@ -17,14 +17,16 @@ const firebaseReady = Boolean(import.meta.env.VITE_FIREBASE_API_KEY);
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
-  const [pendingUser, setPendingUser] = useState<User | null>(null);
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "/dulceria";
+
+  const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) navigate("/dulceria", { replace: true });
-  }, []);
+    if (user) navigate(redirectTo, { replace: true });
+  }, [user, navigate, redirectTo]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -32,16 +34,14 @@ export default function Login() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const { displayName, email } = result.user;
-      setPendingUser({ name: displayName ?? "Usuario", email: email ?? "" });
+      const userData = { name: displayName ?? "Usuario", email: email ?? "" };
+      setUser(userData);
+      toast.success(`¡Bienvenido/a, ${userData.name.split(" ")[0]}!`);
     } catch {
       setError("No se pudo iniciar sesión. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAccept = () => {
-    navigate("/dulceria");
   };
 
   return (
@@ -77,36 +77,16 @@ export default function Login() {
           )}
 
           <button
-            onClick={() => navigate("/dulceria")}
+            onClick={() => {
+              setUser({ name: "Invitado", email: "" });
+              navigate(redirectTo, { replace: true });
+            }}
             className="w-full py-3 rounded-lg border border-white/10 text-gray-300 text-sm font-medium hover:border-white/30 hover:text-white transition-colors"
           >
             Ingresar como invitado
           </button>
         </div>
       </div>
-
-      {pendingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-sm bg-cp-gray rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
-            <div className="w-14 h-14 rounded-full bg-cp-red/10 flex items-center justify-center">
-              <span className="text-2xl">🎬</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">¡Bienvenido/a!</h2>
-              <p className="text-gray-300 mt-1">{pendingUser.name}</p>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Ya puedes seleccionar tus productos de dulcería.
-            </p>
-            <button
-              onClick={handleAccept}
-              className="w-full py-3 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white font-medium transition-colors"
-            >
-              Aceptar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

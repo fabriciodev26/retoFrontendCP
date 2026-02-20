@@ -1,12 +1,19 @@
 import { create } from "zustand";
-import type { PayUResponse } from "@/types";
+import type { PayUResponse, CartItem } from "@/types";
 
 interface PaymentState {
   payUResponse: PayUResponse | null;
-  setPayUResponse: (response: PayUResponse) => void;
+  orderItems: CartItem[];
+  orderTotal: number;
+  setPayUResponse: (response: PayUResponse, items: CartItem[], total: number) => void;
+  clearPayUResponse: () => void;
 }
 
 export const usePaymentStore = create<PaymentState>((set) => ({
   payUResponse: null,
-  setPayUResponse: (response) => set({ payUResponse: response }),
+  orderItems: [],
+  orderTotal: 0,
+  setPayUResponse: (response, items, total) =>
+    set({ payUResponse: response, orderItems: items, orderTotal: total }),
+  clearPayUResponse: () => set({ payUResponse: null, orderItems: [], orderTotal: 0 }),
 }));

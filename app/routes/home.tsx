@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { getPremieres } from "@/services/premieres";
 import type { Route } from "./+types/home";
 
@@ -26,8 +26,6 @@ function SkeletonCard() {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
-
   const { data: premieres, isLoading, isError } = useQuery({
     queryKey: ["premieres"],
     queryFn: getPremieres,
@@ -49,29 +47,29 @@ export default function Home() {
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : premieres?.map((movie) => (
-              <div
+              <Link
                 key={movie.id}
+                to={`/pelicula/${movie.id}`}
                 className="grid grid-cols-[100px_1fr] sm:grid-cols-[160px_1fr] gap-3 sm:gap-6 p-3 sm:p-4 rounded-xl bg-cp-gray hover:bg-cp-gray-light transition-colors"
               >
                 <img
                   src={movie.imagen}
                   alt={movie.titulo}
-                  onClick={() => navigate("/login")}
-                  className="w-full aspect-[2/3] object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                  loading="lazy"
+                  className="w-full aspect-[2/3] object-cover rounded-lg hover:opacity-80 transition-opacity"
                 />
                 <div className="flex flex-col justify-center gap-2">
-                  <h2 className="text-sm sm:text-lg font-semibold leading-snug">{movie.titulo}</h2>
+                  <h2 className="text-sm sm:text-lg font-semibold leading-snug hover:text-cp-red transition-colors">
+                    {movie.titulo}
+                  </h2>
                   <p className="text-gray-400 text-xs sm:text-sm leading-relaxed line-clamp-3 sm:line-clamp-none">
                     {movie.descripcion}
                   </p>
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="mt-2 sm:mt-3 w-full sm:w-auto sm:self-start px-5 py-2 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors"
-                  >
+                  <span className="mt-2 sm:mt-3 w-full sm:w-auto sm:self-start px-5 py-2 rounded-lg bg-cp-red hover:bg-cp-red-dark text-white text-sm font-medium transition-colors text-center">
                     Comprar entradas
-                  </button>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
       </div>
     </main>
