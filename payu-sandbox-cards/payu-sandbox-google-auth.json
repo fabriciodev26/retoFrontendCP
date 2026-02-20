@@ -1,0 +1,123 @@
+{
+  "aprobados": [
+    {
+      "label": "Usuario Google — VISA aprobada",
+      "payload": {
+        "cardNumber": "4907840000000005",
+        "cardExpiry": "03/27",
+        "cvv": "777",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "APPROVED CUSTOMER",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — VISA Debit aprobada",
+      "payload": {
+        "cardNumber": "4557880000000004",
+        "cardExpiry": "02/28",
+        "cvv": "777",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "APPROVED GOOGLE USER",
+        "documentType": "DNI",
+        "documentNumber": "45678901",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — Fabricio Iparraguirre (VISA aprobada)",
+      "payload": {
+        "cardNumber": "4907840000000005",
+        "cardExpiry": "03/27",
+        "cvv": "777",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "Fabricio Iparraguirre",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — MASTERCARD aprobada",
+      "payload": {
+        "cardNumber": "5491610000000001",
+        "cardExpiry": "04/27",
+        "cvv": "777",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "APPROVED MASTERCARD",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — AMEX aprobada",
+      "payload": {
+        "cardNumber": "377753000000009",
+        "cardExpiry": "01/28",
+        "cvv": "7777",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "APPROVED AMEX HOLDER",
+        "documentType": "DNI",
+        "documentNumber": "34567890",
+        "amount": 30
+      }
+    }
+  ],
+  "rechazados": [
+    {
+      "label": "Usuario Google — VISA rechazada",
+      "payload": {
+        "cardNumber": "4907840000000005",
+        "cardExpiry": "10/27",
+        "cvv": "666",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "REJECTED VISA GOOGLE",
+        "documentType": "DNI",
+        "documentNumber": "67890123",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — MASTERCARD rechazada",
+      "payload": {
+        "cardNumber": "5236930000000003",
+        "cardExpiry": "09/27",
+        "cvv": "666",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "REJECTED DEBIT MASTERCARD",
+        "documentType": "DNI",
+        "documentNumber": "23456789",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — AMEX rechazada",
+      "payload": {
+        "cardNumber": "377753000000009",
+        "cardExpiry": "11/27",
+        "cvv": "6666",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "REJECTED AMEX HOLDER",
+        "documentType": "Pasaporte",
+        "documentNumber": "C9876543",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Usuario Google — Fabricio Iparraguirre (VISA rechazada)",
+      "payload": {
+        "cardNumber": "4634010000000005",
+        "cardExpiry": "08/27",
+        "cvv": "666",
+        "email": "fabriciodev26@gmail.com",
+        "fullName": "Fabricio Iparraguirre",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import type { PayUResponse } from "@/types";
 
 interface PayUPayload {
   cardNumber: string;
-  cardExpiry: string; // MM/YY
+  cardExpiry: string;
   cvv: string;
   email: string;
   fullName: string;
@@ -124,7 +124,7 @@ export async function processPayment(payload: PayUPayload): Promise<PayUResponse
   if (text.trimStart().startsWith("<")) {
     const parser = new DOMParser();
     const xml = parser.parseFromString(text, "text/xml");
-    const get = (tag: string) => xml.getElementsByTagName(tag)[0]?.textContent ?? "";
+    const get = (tag: string) => xml.getElementsByTagName(tag)[0]?.textContent?.trim() ?? "";
     code = get("code");
     state = get("state");
     transactionId = get("transactionId");

@@ -1,0 +1,151 @@
+{
+  "aprobados": [
+    {
+      "label": "VISA Credit — Approved",
+      "payload": {
+        "cardNumber": "4907840000000005",
+        "cardExpiry": "03/27",
+        "cvv": "777",
+        "email": "approved@payu.com",
+        "fullName": "APPROVED CUSTOMER",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    },
+    {
+      "label": "MASTERCARD Credit — Approved",
+      "payload": {
+        "cardNumber": "5491610000000001",
+        "cardExpiry": "04/27",
+        "cvv": "777",
+        "email": "approved@payu.com",
+        "fullName": "APPROVED MASTERCARD",
+        "documentType": "Pasaporte",
+        "documentNumber": "AB1234567",
+        "amount": 30
+      }
+    },
+    {
+      "label": "DINERS Credit — Approved",
+      "payload": {
+        "cardNumber": "36239200000000",
+        "cardExpiry": "03/28",
+        "cvv": "777",
+        "email": "approved@payu.com",
+        "fullName": "APPROVED DINERS CARD",
+        "documentType": "CE",
+        "documentNumber": "EF123456789",
+        "amount": 30
+      }
+    },
+    {
+      "label": "AMEX Credit — Approved",
+      "payload": {
+        "cardNumber": "377753000000009",
+        "cardExpiry": "01/28",
+        "cvv": "7777",
+        "email": "approved@payu.com",
+        "fullName": "APPROVED AMEX HOLDER",
+        "documentType": "DNI",
+        "documentNumber": "34567890",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Invitado — Juan Pérez (VISA aprobada)",
+      "payload": {
+        "cardNumber": "4907840000000005",
+        "cardExpiry": "03/27",
+        "cvv": "777",
+        "email": "correo@ejemplo.com",
+        "fullName": "Juan Pérez",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    }
+  ],
+  "rechazados": [
+    {
+      "label": "VISA Credit — Rejected",
+      "payload": {
+        "cardNumber": "4634010000000005",
+        "cardExpiry": "08/27",
+        "cvv": "666",
+        "email": "rejected@payu.com",
+        "fullName": "REJECTED CUSTOMER",
+        "documentType": "CE",
+        "documentNumber": "AB123456789",
+        "amount": 30
+      }
+    },
+    {
+      "label": "MASTERCARD Debit — Rejected",
+      "payload": {
+        "cardNumber": "5236930000000003",
+        "cardExpiry": "09/27",
+        "cvv": "666",
+        "email": "rejected@payu.com",
+        "fullName": "REJECTED DEBIT MASTERCARD",
+        "documentType": "DNI",
+        "documentNumber": "23456789",
+        "amount": 30
+      }
+    },
+    {
+      "label": "DINERS Credit — Rejected",
+      "payload": {
+        "cardNumber": "36239200000000",
+        "cardExpiry": "08/27",
+        "cvv": "666",
+        "email": "rejected@payu.com",
+        "fullName": "REJECTED DINERS CARD",
+        "documentType": "DNI",
+        "documentNumber": "56789012",
+        "amount": 30
+      }
+    },
+    {
+      "label": "Invitado — Juan Pérez (VISA rechazada)",
+      "payload": {
+        "cardNumber": "4634010000000005",
+        "cardExpiry": "08/27",
+        "cvv": "666",
+        "email": "correo@ejemplo.com",
+        "fullName": "Juan Pérez",
+        "documentType": "DNI",
+        "documentNumber": "12345678",
+        "amount": 30
+      }
+    }
+  ],
+  "fraudes": [
+    {
+      "label": "PENDING → APPROVED (antifraude aprueba después de 5 min)",
+      "payload": {
+        "cardNumber": "4557880000000004",
+        "cardExpiry": "05/27",
+        "cvv": "777",
+        "email": "pending_approved@payu.com",
+        "fullName": "APPROVED DEBIT USER",
+        "documentType": "DNI",
+        "documentNumber": "87654321",
+        "amount": 30
+      }
+    },
+    {
+      "label": "PENDING → REJECTED (antifraude rechaza después de 5 min)",
+      "payload": {
+        "cardNumber": "5236930000000003",
+        "cardExpiry": "07/27",
+        "cvv": "666",
+        "email": "pending_rejected@payu.com",
+        "fullName": "REJECTED PENDING USER",
+        "documentType": "CE",
+        "documentNumber": "CD987654321",
+        "amount": 30
+      }
+    }
+  ]
+}

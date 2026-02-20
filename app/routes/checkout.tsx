@@ -10,7 +10,6 @@ import { completeTransaction } from "@/services/complete";
 import { saveOrder } from "@/services/orders";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
-import { usePaymentStore } from "@/store/paymentStore";
 import { formatCurrency } from "@/utils/formatCurrency";
 import type { Route } from "./+types/checkout";
 
@@ -98,8 +97,7 @@ function Field({
 export default function Checkout() {
   const navigate = useNavigate();
   const { user, hydrated } = useAuthStore();
-  const { items, total, clearCart, hydrated: cartHydrated } = useCartStore();
-  const { setPayUResponse } = usePaymentStore();
+  const { items, total, hydrated: cartHydrated } = useCartStore();
   const queryClient = useQueryClient();
 
   const {
@@ -130,6 +128,7 @@ export default function Checkout() {
   }, [documentType]);
 
   if (!hydrated || !cartHydrated) return null;
+  if (!user) return <Navigate to="/login?redirect=/pago" replace />;
   if (items.length === 0) return <Navigate to="/dulceria" replace />;
 
   const handleDocNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +168,6 @@ export default function Checkout() {
         documentType: data.documentType,
       });
 
-      // completeTransaction es secundario, no bloquea la confirmación si falla
       completeTransaction({
         email: data.email,
         nombres: data.fullName,
@@ -183,9 +181,9 @@ export default function Checkout() {
         .then(() => queryClient.invalidateQueries({ queryKey: ["orders"] }))
         .catch(() => {});
 
-      setPayUResponse(payUResponse, items, total);
-      clearCart();
-      navigate("/confirmacion");
+      navigate("/confirmacion", {
+        state: { payUResponse, orderItems: items, orderTotal: total },
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo procesar el pago. Intenta de nuevo.");
     }
@@ -198,6 +196,13 @@ export default function Checkout() {
   };
 
   return (
+    <>
+    {isSubmitting && (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm gap-4">
+        <div className="w-12 h-12 rounded-full border-4 border-white/20 border-t-cp-red animate-spin" />
+        <p className="text-white text-sm font-medium">Procesando pago...</p>
+      </div>
+    )}
     <main className="container mx-auto px-4 py-6 md:py-10">
       <Link
         to="/dulceria"
@@ -334,5 +339,6 @@ export default function Checkout() {
         </aside>
       </div>
     </main>
+  </>
   );
 }

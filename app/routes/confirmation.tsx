@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { usePaymentStore } from "@/store/paymentStore";
+import { useNavigate, useLocation } from "react-router";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { formatCurrency } from "@/utils/formatCurrency";
+import type { PayUResponse, CartItem } from "@/types";
 import type { Route } from "./+types/confirmation";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,19 +20,27 @@ function formatDate(iso: string) {
   }).format(new Date(iso));
 }
 
+interface ConfirmationState {
+  payUResponse: PayUResponse;
+  orderItems: CartItem[];
+  orderTotal: number;
+}
+
 export default function Confirmation() {
   const navigate = useNavigate();
-  const { payUResponse, orderItems, orderTotal, clearPayUResponse } = usePaymentStore();
+  const location = useLocation();
   const { user } = useAuthStore();
+  const { clearCart } = useCartStore();
+
+  const state = location.state as ConfirmationState | null;
+  const payUResponse = state?.payUResponse ?? null;
+  const orderItems = state?.orderItems ?? [];
+  const orderTotal = state?.orderTotal ?? 0;
 
   useEffect(() => {
     if (!payUResponse) navigate("/", { replace: true });
-  }, [payUResponse, navigate]);
-
-  // Limpiar al salir para que el botón "atrás" no muestre esta página
-  useEffect(() => {
-    return () => clearPayUResponse();
-  }, [clearPayUResponse]);
+    else clearCart();
+  }, []);
 
   if (!payUResponse) return null;
 

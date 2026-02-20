@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { getPremieres, PREMIERE_PAGE_SIZE, type PremierePage } from "@/services/premieres";
 import type { QueryDocumentSnapshot } from "firebase/firestore";
+import { MovieImage } from "@/components/MovieImage";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -64,11 +65,10 @@ export default function Home() {
                 to={`/pelicula/${movie.id}`}
                 className="grid grid-cols-[100px_1fr] sm:grid-cols-[160px_1fr] gap-3 sm:gap-6 p-3 sm:p-4 rounded-xl bg-cp-gray hover:bg-cp-gray-light transition-colors"
               >
-                <img
+                <MovieImage
                   src={movie.imagen}
                   alt={movie.titulo}
-                  loading="lazy"
-                  className="w-full aspect-[2/3] object-cover rounded-lg hover:opacity-80 transition-opacity"
+                  className="aspect-[2/3] rounded-lg"
                 />
                 <div className="flex flex-col justify-center gap-2">
                   <h2 className="text-sm sm:text-lg font-semibold leading-snug hover:text-cp-red transition-colors">

@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router";
 import { getPremiereById, type PremierePage } from "@/services/premieres";
+import { MovieImage } from "@/components/MovieImage";
 import type { Premiere } from "@/types";
 import type { Route } from "./+types/premiere";
 
@@ -46,17 +47,12 @@ function SkeletonDetail() {
   );
 }
 
-// Shown during the initial page load (direct URL access)
-export function HydrateFallback() {
-  return <SkeletonDetail />;
-}
 
 export default function Premiere({ loaderData }: Route.ComponentProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Prefer list cache (instant if coming from home), then loader data
   const { data: movie } = useQuery({
     queryKey: ["premiere", id],
     queryFn: () => getPremiereById(id!),
@@ -104,11 +100,10 @@ export default function Premiere({ loaderData }: Route.ComponentProps) {
 
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
           <div className="w-full sm:w-56 shrink-0">
-            <img
+            <MovieImage
               src={movie.imagen}
               alt={movie.titulo}
-              loading="lazy"
-              className="w-full aspect-[2/3] object-cover rounded-2xl shadow-lg"
+              className="aspect-[2/3] rounded-2xl shadow-lg"
             />
           </div>
 

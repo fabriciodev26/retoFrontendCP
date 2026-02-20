@@ -8,6 +8,7 @@ interface CartState {
   hydrated: boolean;
   addItem: (product: CandyProduct) => void;
   removeItem: (id: string) => void;
+  removeItemFull: (id: string) => void;
   clearCart: () => void;
   setHydrated: () => void;
 }
@@ -42,6 +43,11 @@ export const useCartStore = create<CartState>()(
               : state.items.map((i) =>
                   i.id === id ? { ...i, cantidad: i.cantidad - 1 } : i
                 );
+          return { items, total: calcTotal(items) };
+        }),
+      removeItemFull: (id) =>
+        set((state) => {
+          const items = state.items.filter((i) => i.id !== id);
           return { items, total: calcTotal(items) };
         }),
       clearCart: () => set({ items: [], total: 0 }),

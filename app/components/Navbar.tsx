@@ -2,11 +2,13 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import { CartDrawer } from "@/components/CartDrawer";
 
 export function Navbar() {
   const { user, logout } = useAuthStore();
-  const { items } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
 
@@ -14,6 +16,7 @@ export function Navbar() {
     const { auth } = await import("@/lib/firebase.client");
     const { signOut } = await import("firebase/auth");
     await signOut(auth);
+    clearCart();
     logout();
     setMenuOpen(false);
   };
@@ -37,7 +40,6 @@ export function Navbar() {
           <img src="/images/svg/logo.svg" alt="Cineplanet" className="h-7 w-auto" />
         </NavLink>
 
-        {/* Desktop menu */}
         <ul className="hidden md:flex items-center gap-8 text-sm font-medium">
           <li>
             <NavLink to="/" end className={navLinkClass}>
@@ -57,14 +59,14 @@ export function Navbar() {
             </li>
           )}
           <li>
-            <NavLink to="/dulceria" className="relative flex items-center text-gray-400 hover:text-white transition-colors" aria-label="Carrito">
+            <button onClick={() => setCartOpen(true)} className="relative flex items-center text-gray-400 hover:text-white transition-colors" aria-label="Carrito">
               <CartIcon />
               {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-cp-red text-white text-[10px] font-bold flex items-center justify-center leading-none">
                   {totalItems > 9 ? "9+" : totalItems}
                 </span>
               )}
-            </NavLink>
+            </button>
           </li>
           <li>
             {user?.email ? (
@@ -88,16 +90,15 @@ export function Navbar() {
           </li>
         </ul>
 
-        {/* Mobile right: cart + hamburger grouped */}
         <div className="md:hidden flex items-center gap-1">
-          <NavLink to="/dulceria" className="relative flex items-center text-gray-400 hover:text-white transition-colors p-2" aria-label="Carrito">
+          <button onClick={() => setCartOpen(true)} className="relative flex items-center text-gray-400 hover:text-white transition-colors p-2" aria-label="Carrito">
             <CartIcon />
             {totalItems > 0 && (
               <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-cp-red text-white text-[10px] font-bold flex items-center justify-center leading-none">
                 {totalItems > 9 ? "9+" : totalItems}
               </span>
             )}
-          </NavLink>
+          </button>
 
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -123,7 +124,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           menuOpen ? "max-h-96 border-t border-white/10" : "max-h-0"
@@ -170,6 +170,8 @@ export function Navbar() {
           </li>
         </ul>
       </div>
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </nav>
   );
 }
